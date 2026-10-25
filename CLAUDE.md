@@ -4,7 +4,8 @@ Especificação completa em `PLANO.md`. Fontes verificadas em `docs/FONTES.md`. 
 
 ## Estado atual (25/10/2026)
 - **Fase 0:** construída e **aprovada** (25/10/2026).
-- **Fase 1:** construída, CI verde, **aguardando aprovação**. Repositório público: https://github.com/bruno12345berlin/painel-parlamentar. Esqueleto Astro funcionando (typecheck, lint, 3 testes e build passam; conferido no navegador em celular e modo escuro).
+- **Fase 1:** construída e **aprovada**, CI verde. Repositório público: https://github.com/bruno12345berlin/painel-parlamentar. Esqueleto Astro funcionando (typecheck, lint, 3 testes e build passam; conferido no navegador em celular e modo escuro).
+- **Fase 2 (em andamento): fatia vertical construída, aguardando o olhar do Bruno.** Deputado Abilio Brunini (PL-MT) e senador Alan Rick (AC), ano 2024: `npx tsx pipeline/slice/collect.ts` e `build.ts`; páginas descartáveis em /slice/[slug]. Totais de gasto conferidos com `awk` direto nos brutos (batem ao centavo). **Participação, alinhamento e projetos ainda não foram conferidos contra o site oficial.** Pipeline completo ainda não começou.
 - Pendente/não verificado: tabelas de limite da cota por UF e ano (Câmara e Senado); regra de acúmulo do saldo mensal; licenças do Senado com um caso real; cobertura de afastamentos no `/historico` da Câmara.
 - Repositório criado e primeiro push feito em 25/10/2026 (commits com e-mail noreply do GitHub).
 - Links do cabeçalho para /deputados, /senadores, /rankings, /comparar e /dados dão 404 até as Fases 3 e 4. Em /sobre, "quem faz" é `[A DEFINIR]`.
@@ -19,6 +20,11 @@ Especificação completa em `PLANO.md`. Fontes verificadas em `docs/FONTES.md`. 
 | 25/10/2026 | Astro 5.18.2, Tailwind 4.3.3 (plugin Vite), zod 3.25.76, TypeScript 5.9, ESLint 9, Vitest 4; versões exatas no package.json | Astro 6/TS 7/ESLint 10 existem, mas Astro 5 exige zod 3 e o plano fixa Astro 5.x; TS 7 e ESLint 10 não testados com o ecossistema Astro | construído |
 | 25/10/2026 | `build.format: "file"` (gera /sobre.html) e `trailingSlash: "never"` | URLs com pasta (/sobre/index.html): mais arquivos no deploy | construído |
 | 25/10/2026 | Cabeçalho/rodapé/base sóbrios, paleta petróleo + neutros, modo escuro por `prefers-color-scheme`, tokens `--cat-1..7` já definidos | — | construído (layout definitivo de home e perfil: opções na Fase 3) |
+| 25/10/2026 | Senado: denominador da participação desconta MIS, LS, LP e AP (AP = atividade parlamentar, licença formal); P-NRV e NCom contam como não votou | Contar AP como ausência: AP é afastamento registrado pela própria Casa. **Pergunta aberta ao Bruno** | construído, a confirmar |
+| 25/10/2026 | Contagem de "projetos" usa PL, PLP, PEC, PDL, PRC, PDS, PRS; requerimentos e demais tipos aparecem à parte | Contar tudo: Alan Rick teria 104 e Abilio 78, dominados por requerimentos. **Pergunta aberta ao Bruno** | construído, a confirmar |
+| 25/10/2026 | Alinhamento da fatia usa só orientação com o mesmo nome do partido; federações/blocos exigem a tabela manual | — | construído (parcial) |
+| 25/10/2026 | Autoria no Senado via `/processo` (o endpoint de autorias foi descontinuado) | Usar `/senador/{codigo}/autorias`: some em 01/02/2026 | construído |
+| 25/10/2026 | `votacao` do Senado coletada por intervalo de datas, nunca por `?ano=` | `?ano=` filtra pela matéria: contaminou números | construído |
 
 ## Convenções
 - Stack, estrutura e regras de métrica: ver `PLANO.md` (seções 3, 5, 6).

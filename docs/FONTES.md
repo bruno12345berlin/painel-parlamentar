@@ -15,7 +15,8 @@ Verificado em 25/10/2026. Amostras em `data/samples/`. Status: ✅ verificado ·
 | Votos: `arquivos/votacoesVotos/csv/votacoesVotos-{ano}.csv` | ✅ | Não tem órgão: cruzar por `idVotacao` com `votacoes`. Traz `deputado_siglaPartido` (partido no voto) e `deputado_idLegislatura`. Valores: Sim, Não, Obstrução, Abstenção, **"Artigo 17"** (quem presidiu). 2024: 116.400 votos. |
 | Orientações: `arquivos/votacoesOrientacoes/csv/...` | ✅ | `siglaBancada` (partidos, federações "Fdr PT-PCdoB-PV", blocos "Bl MdbPsdRepPode", Governo, Maioria, Minoria, Oposição) e `orientacao` (Sim, Não, Obstrução, Liberado, vazio). 4.361 linhas em 2024. Nome de bloco vem **truncado** ("Bl UniPpFdrPsdbCid...") → o mapeamento manual partido→bancada por período é indispensável. |
 | Proposições: `arquivos/proposicoes/csv/...` | ✅ | siglaTipo, numero, ano, ementa, dataApresentacao, `ultimoStatus_descricaoSituacao`. ~53 MB/ano. |
-| Autores: `arquivos/proposicoesAutores/csv/...` | ✅ | `idDeputadoAutor`, `ordemAssinatura`, `proponente`. Inclui autores que não são deputados (órgãos, Senado): tratar. |
+| Autores: `arquivos/proposicoesAutores/csv/...` | ✅ | `idDeputadoAutor`, `ordemAssinatura`, `proponente`. **`proponente=1` marca o autor principal e pode haver vários; `ordemAssinatura` não serve para isso.** Inclui autores que não são deputados (órgãos, Senado): tratar. **O arquivo `proposicoes` não traz o tipo PROC** (Proposta de Fiscalização e Controle): 5 das 83 autorias de Abilio Brunini em 2024 ficaram sem dados. |
+| `ideCadastro` do CEAP = id do deputado | ✅ | Conferido (Abilio Brunini, 491 lançamentos, todos MT). |
 | Lista em lote: `arquivos/deputados/csv/deputados.csv` | ✅ | Só traz legislatura inicial/final e dados pessoais (sem partido/UF). **Contém CPF**: não usar. |
 
 ### Achado crítico: votação nominal é minoria no Plenário
@@ -27,10 +28,11 @@ Em 2024, das 2.144 votações do Plenário, só **273 têm votos individuais**. 
 |---|---|---|
 | `/senador/lista/legislatura/{56\|57}` | ✅ | 245 na leg. 57. UF em `Mandatos.Mandato[].UfParlamentar`; mandatos trazem Titular e Suplentes. |
 | `/senador/{codigo}` | ✅ | JSON com `Accept: application/json`; traz lista de serviços relacionados. |
-| `/senador/{codigo}/autorias`, `/licencas`, `/mandatos` | ⚠️ | Respondem 200. Testado só com um senador (5918), sem licenças. Validar com senador que teve licença/suplente (Fase 2). |
-| `/votacao?ano={ano}` | ✅ | Funciona para 2019 (195), 2022 (125), 2024 (90). `casaSessao = SF` em tudo (sessões de Plenário, `siglaTipoSessao` DOR/DEX). Totais vêm `null`. Cada item tem `votacaoSecreta` S/N e `votos[]`. |
+| `/senador/{codigo}/autorias` | ❌ descontinuado | Desativação completa em 01/02/2026 (ainda respondia em 25/10/2026). Substituto: `/processo?codigoParlamentarAutor={codigo}&dataInicioApresentacao=..&dataFimApresentacao=..`, que devolveu o mesmo conjunto (104 de 104 em 2024). Não traz indicador de autor principal: usar o **primeiro nome da lista `autoria`** (coincidiu com o indicador do endpoint antigo em 104/104; revalidar em amostra maior). |
+| `/senador/{codigo}/licencas`, `/mandatos` | ✅ | `licencas`: uma linha por período (muitas de 1 dia) com `SiglaTipoAfastamento`. `mandatos`: `Exercicios`, e `Partidos` com `DataFiliacao`/`DataDesfiliacao`. Licenças de missão da Casa (MIS) não aparecem na lista de licenças (2 dias de MIS em abr/2024 sem licença registrada): a sigla do voto é a fonte mais completa. |
+| `/votacao` | ✅ ⚠️ | **`?ano=` filtra pelo ano da MATÉRIA, não da sessão** (a consulta de 2024 trazia sessões até 2026 e contaminou a primeira versão das métricas). Para o ano das votações, usar `?dataInicio=AAAA-01-01&dataFim=AAAA-12-31`. `casaSessao = SF` (Plenário; `siglaTipoSessao` DOR/DEX). Totais vêm `null`. Cada item tem `votacaoSecreta` S/N e `votos[]`. A `siglaPartidoParlamentar` é o partido **na data da votação** (conferido: Alan Rick aparece UNIÃO em 2024 e REPUBLICANOS só a partir de nov/2025). |
 | Votos do Senado | ✅ | Siglas: Sim, Não, Abstenção, **P-NRV** (presente, não registrou voto), **AP** (atividade parlamentar), **MIS** (missão), **LS** (licença saúde), **LP** (licença particular), **NCom** (não compareceu), **NA** (dispositivo não citado), **Presidente (art. 51 RISF)**, **Votou** (voto secreto: anônimo). |
-| Votações secretas | ✅ | Em 2024: **52 de 90 secretas**, todas com "Votou" anônimo: excluir das métricas. Só 38 têm voto nominal aberto. |
+| Votações secretas | ✅ | Em 2024 (sessões do ano): **37 de 95 secretas**, com "Votou" anônimo: excluir das métricas. 58 têm voto nominal aberto. (Os números 52/90/38 da primeira medição estavam errados pelo problema do `?ano=`.) |
 | CEAPS: `.../verba/despesa_ceaps_{ano}.csv` | ✅ | Latin-1, `;`, CRLF, **primeira linha é metadado** ("ULTIMA ATUALIZACAO"), segunda é o cabeçalho. Colunas: ANO, MES, SENADOR, TIPO_DESPESA, CNPJ_CPF, FORNECEDOR, DOCUMENTO, DATA, DETALHAMENTO, VALOR_REEMBOLSADO (vírgula decimal), COD_DOCUMENTO. 2024: 21.431 linhas, 88 senadores, 8 tipos (111 linhas com tipo vazio), 58 valores negativos. Sem id do senador: casar por nome. |
 | Orientação de bancada | ❌ descartado | Não é publicada (confirmado no plano). |
 
@@ -66,3 +68,6 @@ Brutos 2019–2025 somam aproximadamente 1 GB entre CEAP, votos e proposições:
 
 ## Estratégia de partição proposta
 Como no plano: agregados por parlamentar e rankings no git; detalhe anual por parlamentar em `public/json/{slug}/{ano}.json` (gerado no build). Confirmar com o Bruno.
+
+## Coleta: robustez
+Um download de 53 MB caiu no meio (`other side closed`) e deixou arquivo truncado. O coletor agora grava em `.part`, renomeia só ao concluir e repete com espera exponencial.
