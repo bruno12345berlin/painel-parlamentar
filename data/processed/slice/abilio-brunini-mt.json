@@ -44,26 +44,31 @@
    {
     "fornecedor": "PANTANAL VEÍCULOS LTDA",
     "documento": "07.319.323/0001-91",
+    "tipo": "pj",
     "total": 104100
    },
    {
     "fornecedor": "JOSÉ MIGUEL DE ARRUDA PELISSARI",
     "documento": "***.846.111-**",
+    "tipo": "pf",
     "total": 63000
    },
    {
     "fornecedor": "AZUL",
     "documento": "09.296.295/0001-60",
+    "tipo": "pj",
     "total": 37657.3
    },
    {
     "fornecedor": "TAM",
     "documento": "02.012.862/0001-60",
+    "tipo": "pj",
     "total": 30497.56
    },
    {
     "fornecedor": "Pinheiro Estratégia e Comunicação Ltda",
     "documento": "50.697.191/0001-60",
+    "tipo": "pj",
     "total": 26000
    }
   ],

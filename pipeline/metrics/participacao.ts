@@ -51,11 +51,11 @@ export function participacaoCamara(
 // Siglas de voto do Senado (docs/FONTES.md)
 const VOTO_REGISTRADO = new Set(["Sim", "Não", "Abstenção"]);
 // Afastamentos formais informados pela própria votação: saem do denominador.
+// AP (atividade parlamentar) NÃO está aqui de propósito: decisão de 25/10/2026, conta como ausência.
 const AFASTAMENTO: Record<string, string> = {
   LS: "licença saúde",
   LP: "licença particular",
   MIS: "missão da Casa",
-  AP: "atividade parlamentar",
 };
 const PRESIDIU = "Presidente (art. 51 RISF)";
 

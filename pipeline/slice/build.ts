@@ -1,10 +1,11 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { lerCsvArquivo, lerCsvDeZip } from "../lib/csv.js";
 import { categorizar } from "../metrics/categorias.js";
-import { mascararDocumento, normalizarNome } from "../metrics/documentos.js";
+import { mascararDocumento, normalizarNome, tipoFornecedor } from "../metrics/documentos.js";
 import { periodosCamara, emExercicio, type Periodo } from "../metrics/exercicio.js";
 import { resumirGastos, type Despesa } from "../metrics/gastos.js";
 import { participacaoCamara, participacaoSenado } from "../metrics/participacao.js";
+import { rotuloVotoSenado } from "../metrics/siglasSenado.js";
 import { alinhamento, type VotoComOrientacao } from "../metrics/alinhamento.js";
 import { ANO, DEPUTADO, RAW, SAIDA, SENADOR } from "./alvos.js";
 
@@ -52,6 +53,7 @@ async function deputado() {
       categoria: categorizar("camara", l.txtDescricao ?? ""),
       fornecedor: l.txtFornecedor ?? "",
       documentoFornecedor: mascararDocumento(l.txtCNPJCPF ?? ""),
+      tipoFornecedor: tipoFornecedor(l.txtCNPJCPF ?? ""),
       valorLiquido: num(l.vlrLiquido ?? "0"),
     });
   }
@@ -139,8 +141,8 @@ async function senador() {
     const meu = (v.votos as any[]).find((x) => String(x.codigoParlamentar) === id);
     if (!meu) continue;
     siglas.push(meu.siglaVotoParlamentar);
-    if (["LS", "LP", "MIS", "AP"].includes(meu.siglaVotoParlamentar)) datasAfastamento.add(v.dataSessao);
-    recentes.push({ data: v.dataSessao, descricao: v.descricaoVotacao, identificacao: v.identificacao, voto: meu.siglaVotoParlamentar, partidoNoVoto: meu.siglaPartidoParlamentar, resultado: v.resultadoVotacao });
+    if (["LS", "LP", "MIS"].includes(meu.siglaVotoParlamentar)) datasAfastamento.add(v.dataSessao);
+    recentes.push({ data: v.dataSessao, descricao: v.descricaoVotacao, identificacao: v.identificacao, voto: meu.siglaVotoParlamentar, votoRotulo: rotuloVotoSenado(meu.siglaVotoParlamentar), partidoNoVoto: meu.siglaPartidoParlamentar, resultado: v.resultadoVotacao });
   }
   recentes.sort((a, b) => b.data.localeCompare(a.data));
   const participacao = participacaoSenado(siglas);
@@ -159,7 +161,7 @@ async function senador() {
     }
     despesas.push({
       ano: ANO, mes: Number(l.MES), categoria: categorizar("senado", l.TIPO_DESPESA ?? ""),
-      fornecedor: l.FORNECEDOR ?? "", documentoFornecedor: mascararDocumento(l.CNPJ_CPF ?? ""), valorLiquido: num(l.VALOR_REEMBOLSADO ?? "0"),
+      fornecedor: l.FORNECEDOR ?? "", documentoFornecedor: mascararDocumento(l.CNPJ_CPF ?? ""), tipoFornecedor: tipoFornecedor(l.CNPJ_CPF ?? ""), valorLiquido: num(l.VALOR_REEMBOLSADO ?? "0"),
     });
   }
 

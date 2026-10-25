@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { alinhamento } from "../pipeline/metrics/alinhamento";
 import { categorizar } from "../pipeline/metrics/categorias";
-import { mascararDocumento, normalizarNome } from "../pipeline/metrics/documentos";
+import { mascararDocumento, normalizarNome, tipoFornecedor } from "../pipeline/metrics/documentos";
 import { emExercicio, periodosCamara } from "../pipeline/metrics/exercicio";
 import { resumirGastos, type Despesa } from "../pipeline/metrics/gastos";
+import { rotuloVotoSenado } from "../pipeline/metrics/siglasSenado";
 import { participacaoCamara, participacaoSenado } from "../pipeline/metrics/participacao";
 
 const desp = (mes: number, valorLiquido: number, extra: Partial<Despesa> = {}): Despesa => ({
-  ano: 2024, mes, categoria: "passagens", fornecedor: "F", documentoFornecedor: "00.000.000/0001-00", valorLiquido, ...extra,
+  ano: 2024, mes, categoria: "passagens", fornecedor: "F", documentoFornecedor: "00.000.000/0001-00", tipoFornecedor: "pj", valorLiquido, ...extra,
 });
 
 describe("gastos", () => {
@@ -18,8 +19,8 @@ describe("gastos", () => {
     expect(r.porMes[1]).toBe(60);
   });
   it("agrupa maiores fornecedores por documento", () => {
-    const r = resumirGastos([desp(1, 10, { fornecedor: "A", documentoFornecedor: "1" }), desp(2, 30, { fornecedor: "A", documentoFornecedor: "1" }), desp(1, 25, { fornecedor: "B", documentoFornecedor: "2" })], 1);
-    expect(r.maioresFornecedores).toEqual([{ fornecedor: "A", documento: "1", total: 40 }]);
+    const r = resumirGastos([desp(1, 10, { fornecedor: "A", documentoFornecedor: "1", tipoFornecedor: "pj" }), desp(2, 30, { fornecedor: "A", documentoFornecedor: "1", tipoFornecedor: "pj" }), desp(1, 25, { fornecedor: "B", documentoFornecedor: "2", tipoFornecedor: "pj" })], 1);
+    expect(r.maioresFornecedores).toEqual([{ fornecedor: "A", documento: "1", tipo: "pj", total: 40 }]);
   });
 });
 
@@ -31,6 +32,11 @@ describe("documentos e nomes", () => {
     expect(mascararDocumento("12.345.678/0001")).toBe("***"); // contagem de dígitos desconhecida: não expor
     expect(mascararDocumento("11.222.333/0001-81")).toBe("11.222.333/0001-81");
     expect(mascararDocumento("")).toBe("");
+  });
+  it("classifica fornecedor como pessoa física, jurídica ou desconhecido", () => {
+    expect(tipoFornecedor("346.769.613/91  -")).toBe("pf");
+    expect(tipoFornecedor("11.222.333/0001-81")).toBe("pj");
+    expect(tipoFornecedor("")).toBe("desconhecido");
   });
   it("normaliza nomes sem acento", () => {
     expect(normalizarNome("  Acácio  FAVACHO ")).toBe("acacio favacho");
@@ -85,6 +91,14 @@ describe("participação (Senado)", () => {
   });
 });
 
+describe("participação (Senado): AP", () => {
+  it("atividade parlamentar (AP) conta como ausência, não sai do denominador", () => {
+    const r = participacaoSenado(["Sim", "AP", "AP", "LS"]);
+    expect(r).toMatchObject({ votou: 1, total: 3 });
+    expect(r.descontadas).not.toHaveProperty("atividade parlamentar");
+  });
+});
+
 describe("alinhamento", () => {
   it("tira Liberado e sem orientação do denominador", () => {
     const r = alinhamento([
@@ -96,5 +110,12 @@ describe("alinhamento", () => {
       { voto: "Sim", orientacao: undefined },
     ]);
     expect(r).toMatchObject({ alinhados: 2, total: 3, foraDoDenominador: { liberado: 1, semOrientacao: 2 } });
+  });
+});
+
+describe("siglas do Senado", () => {
+  it("traduz siglas conhecidas e preserva as desconhecidas", () => {
+    expect(rotuloVotoSenado("P-NRV")).toBe("Presente, não registrou voto");
+    expect(rotuloVotoSenado("XYZ")).toBe("XYZ");
   });
 });

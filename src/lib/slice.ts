@@ -8,7 +8,7 @@ export interface Fatia {
     linhas: number;
     porCategoria: Record<string, number>;
     porMes: number[];
-    maioresFornecedores: { fornecedor: string; documento: string; total: number }[];
+    maioresFornecedores: { fornecedor: string; documento: string; tipo: "pf" | "pj" | "desconhecido"; total: number }[];
   };
   participacao: { votou: number; total: number; fracao: number | null; descontadas: Record<string, number> };
   alinhamento: { alinhados: number; total: number; fracao: number | null } | null;
@@ -20,7 +20,7 @@ export interface Fatia {
     coautor: Record<string, number>;
     lista: { sigla: string; ementa: string; data: string; principal: boolean; url: string; numero?: string; ano?: string; identificacao?: string }[];
   };
-  votacoesRecentes: { data: string; descricao: string; voto: string; partidoNoVoto: string; orientacaoBancada?: string | null }[];
+  votacoesRecentes: { data: string; descricao: string; voto: string; votoRotulo?: string; partidoNoVoto: string; orientacaoBancada?: string | null }[];
   geradoEm: string;
 }
 

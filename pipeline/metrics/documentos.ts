@@ -14,3 +14,11 @@ export function normalizarNome(n: string): string {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+export type TipoFornecedor = "pf" | "pj" | "desconhecido";
+
+/** Pessoa física (11 dígitos, CPF) ou jurídica (14 dígitos, CNPJ), pelo documento informado na fonte. */
+export function tipoFornecedor(bruto: string): TipoFornecedor {
+  const n = bruto.replace(/\D/g, "").length;
+  return n === 11 ? "pf" : n === 14 ? "pj" : "desconhecido";
+}

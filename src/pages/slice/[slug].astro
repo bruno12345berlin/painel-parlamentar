@@ -40,6 +40,18 @@ const outros = f.projetos.total - f.projetos.projetosPrincipal - f.projetos.proj
       <h2 class="text-sm font-semibold">Participação em votações</h2>
       <p class="text-2xl font-bold">{f.participacao.fracao === null ? "—" : formatarPercentual(f.participacao.fracao)}</p>
       <p class="text-sm" style="color:var(--muted)">Votou em {f.participacao.votou} de {f.participacao.total} votações nominais do Plenário.</p>
+      <details class="mt-2 text-sm">
+        <summary class="cursor-pointer">Como é calculado</summary>
+        <p class="mt-1">
+          Participação = votações em que registrou voto ÷ votações nominais do Plenário ocorridas enquanto estava em exercício. Votações simbólicas, de comissão e (no Senado) secretas não entram.
+          {f.parlamentar.casa === "senado" ? " No Senado, atividade parlamentar (AP) e não comparecimento contam como ausência; licença saúde, licença particular, missão da Casa e presidir a sessão saem da conta." : " Na Câmara, votações em que o deputado presidiu a sessão saem da conta; obstrução conta como voto."}
+        </p>
+        {
+          Object.entries(f.participacao.descontadas).filter(([, n]) => n > 0).length > 0 && (
+            <p class="mt-1">Fora da conta neste período: {Object.entries(f.participacao.descontadas).filter(([, n]) => n > 0).map(([k, n]) => `${k} (${n})`).join(", ")}.</p>
+          )
+        }
+      </details>
     </div>
     <div class="rounded border p-4" style="border-color:var(--border)">
       <h2 class="text-sm font-semibold">Alinhamento com o partido</h2>
@@ -103,7 +115,7 @@ const outros = f.projetos.total - f.projetos.projetosPrincipal - f.projetos.proj
 
     <h3 class="mt-6 font-semibold">Maiores fornecedores</h3>
     <ul class="mt-2 text-sm">
-      {f.gastos.maioresFornecedores.map((x) => <li class="border-t py-1" style="border-color:var(--border)">{x.fornecedor} <span style="color:var(--muted)">({x.documento})</span>: {formatarReais(x.total)}</li>)}
+      {f.gastos.maioresFornecedores.map((x) => <li class="border-t py-1" style="border-color:var(--border)">{x.fornecedor} <span style="color:var(--muted)">({x.tipo === "pf" ? "pessoa física" : x.tipo === "pj" ? "pessoa jurídica" : "tipo não informado"}{x.documento ? `, ${x.documento}` : ""})</span>: {formatarReais(x.total)}</li>)}
     </ul>
   </section>
 
@@ -114,7 +126,7 @@ const outros = f.projetos.total - f.projetos.projetosPrincipal - f.projetos.proj
         f.votacoesRecentes.slice(0, 10).map((v) => (
           <li class="border-t pt-2" style="border-color:var(--border)">
             <p>{formatarData(v.data)}: {v.descricao}</p>
-            <p><strong>Voto: {v.voto}</strong>{v.orientacaoBancada ? ` · orientação da bancada (${v.partidoNoVoto}): ${v.orientacaoBancada}` : ""}</p>
+            <p><strong>Voto: {v.votoRotulo ?? v.voto}</strong>{v.orientacaoBancada ? ` · orientação da bancada (${v.partidoNoVoto}): ${v.orientacaoBancada}` : ""}</p>
           </li>
         ))
       }
