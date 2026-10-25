@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { alinhamento } from "../pipeline/metrics/alinhamento";
 import { categorizar } from "../pipeline/metrics/categorias";
-import { mascararDocumento, normalizarNome, tipoFornecedor } from "../pipeline/metrics/documentos";
+import { chaveNome, mascararDocumento, normalizarNome, tipoFornecedor } from "../pipeline/metrics/documentos";
 import { emExercicio, periodosCamara } from "../pipeline/metrics/exercicio";
 import { resumirGastos, type Despesa } from "../pipeline/metrics/gastos";
 import { rotuloVotoSenado } from "../pipeline/metrics/siglasSenado";
+import { orientacaoDoPartido } from "../pipeline/metrics/bancadas";
+import { legislaturaDe, legislaturaDoMes, mesesEmExercicio } from "../pipeline/metrics/tempo";
+import { metricasVazias, somar } from "../pipeline/model";
+import { projetosLegislativos } from "../pipeline/metrics/projetos";
+import { periodosEfetivos } from "../pipeline/metrics/evidencia";
 import { participacaoCamara, participacaoSenado } from "../pipeline/metrics/participacao";
 
 const desp = (mes: number, valorLiquido: number, extra: Partial<Despesa> = {}): Despesa => ({
@@ -117,5 +122,97 @@ describe("siglas do Senado", () => {
   it("traduz siglas conhecidas e preserva as desconhecidas", () => {
     expect(rotuloVotoSenado("P-NRV")).toBe("Presente, não registrou voto");
     expect(rotuloVotoSenado("XYZ")).toBe("XYZ");
+  });
+});
+
+describe("bancadas", () => {
+  const linhas = [
+    { bancada: "PL", orientacao: "Não" },
+    { bancada: "Fdr PT-PCdoB-PV", orientacao: "Sim" },
+    { bancada: "Bl MdbPsdRepPode", orientacao: "Liberado" },
+    { bancada: "Bl UniPpPsd...", orientacao: "Sim" },
+    { bancada: "Governo", orientacao: "Sim" },
+    { bancada: "Republican", orientacao: "Obstrução" },
+  ];
+  it("usa a linha do partido, da federação ou do bloco; ignora governo e blocos truncados", () => {
+    expect(orientacaoDoPartido("PL", linhas)).toBe("Não");
+    expect(orientacaoDoPartido("PCdoB", linhas)).toBe("Sim");
+    expect(orientacaoDoPartido("MDB", linhas)).toBe("Liberado");
+    expect(orientacaoDoPartido("UNIÃO", linhas)).toBeUndefined(); // só consta em bloco truncado
+  });
+  it("prefere a linha mais específica e resolve variantes de nome", () => {
+    expect(orientacaoDoPartido("REPUBLICANOS", linhas)).toBe("Obstrução"); // própria linha vence o bloco
+  });
+});
+
+describe("tempo", () => {
+  it("legislatura da data e do mês de transição", () => {
+    expect(legislaturaDe("2019-01-31")).toBeNull();
+    expect(legislaturaDe("2023-01-31")).toBe(56);
+    expect(legislaturaDe("2023-02-01")).toBe(57);
+    expect(legislaturaDoMes(2023, 1)).toBe(56);
+    expect(legislaturaDoMes(2023, 2)).toBe(57);
+  });
+  it("meses em exercício: suplente que assumiu em junho tem 7 meses, não 12", () => {
+    expect(mesesEmExercicio([{ inicio: "2024-06-01" }], "2024-01-01", "2024-12-31")).toBe(7);
+    expect(mesesEmExercicio([{ inicio: "2024-01-01", fim: "2024-03-15" }], "2024-01-01", "2024-12-31")).toBeCloseTo(2 + 15 / 31, 2);
+    expect(mesesEmExercicio([{ inicio: "2023-02-01" }], "2023-01-01", "2023-01-31")).toBe(0);
+  });
+});
+
+describe("buckets aditivos", () => {
+  it("somar dois buckets dá o total do ano ou da legislatura", () => {
+    const a = metricasVazias(true);
+    a.gastos.total = 100.1;
+    a.gastos.porMes[0] = 100.1;
+    a.votacoes = { votou: 3, total: 4, descontadas: { presidiu: 1 } };
+    a.alinhamento = { alinhados: 2, total: 3, liberado: 1, semOrientacao: 0 };
+    a.projetos.principal = { PL: 2 };
+    const b = metricasVazias(true);
+    b.gastos.total = 0.2;
+    b.gastos.porMes[0] = 0.2;
+    b.votacoes = { votou: 1, total: 1, descontadas: { presidiu: 2 } };
+    b.alinhamento = { alinhados: 1, total: 1, liberado: 0, semOrientacao: 2 };
+    b.projetos.principal = { PL: 1, REQ: 4 };
+    const s = somar(a, b);
+    expect(s.gastos.total).toBe(100.3);
+    expect(s.votacoes).toEqual({ votou: 4, total: 5, descontadas: { presidiu: 3 } });
+    expect(s.alinhamento).toEqual({ alinhados: 3, total: 4, liberado: 1, semOrientacao: 2 });
+    expect(s.projetos.principal).toEqual({ PL: 3, REQ: 4 });
+    expect(projetosLegislativos(s.projetos.principal)).toBe(3); // requerimento fica fora
+  });
+  it("senado: alinhamento continua nulo", () => {
+    expect(somar(metricasVazias(false), metricasVazias(false)).alinhamento).toBeNull();
+  });
+});
+
+describe("chaveNome", () => {
+  it("casa grafias diferentes do mesmo nome", () => {
+    expect(chaveNome("Jean-Paul Prates")).toBe(chaveNome("JEAN PAUL PRATES"));
+    expect(chaveNome("Dr. Samuel Araújo")).toBe(chaveNome("SAMUEL ARAUJO"));
+    expect(chaveNome("Zequinha Marinho")).not.toBe(chaveNome("Zenaide Maia"));
+  });
+});
+
+describe("exercício efetivo (histórico com lacunas)", () => {
+  const voto = (d: string) => ({ inicio: d, fim: d });
+  it("estende o exercício pela atividade quando a convocação não tem linha de exercício", () => {
+    const declarado = [{ inicio: "2019-03-13", fim: "2019-10-21" }];
+    const ev = [voto("2019-03-19"), voto("2019-10-15"), voto("2019-11-05"), voto("2019-12-10"), voto("2020-02-05"), voto("2020-03-10")];
+    expect(periodosEfetivos(declarado, ev, "2026-10-25")).toEqual([{ inicio: "2019-03-19", fim: "2020-03-10" }]);
+  });
+  it("descarta janela longa declarada sem nenhuma atividade e cria a janela pela atividade", () => {
+    const declarado = [{ inicio: "2022-03-31", fim: "2026-06-25" }, { inicio: "2026-06-30" }];
+    const ev = [{ inicio: "2026-06-01", fim: "2026-06-30" }, voto("2026-07-01"), voto("2026-10-14")];
+    expect(periodosEfetivos(declarado, ev, "2026-10-25")).toEqual([{ inicio: "2026-06-01" }]);
+  });
+  it("separa saída e volta quando há intervalo maior que o recesso", () => {
+    const ev = [voto("2024-03-01"), voto("2024-04-01"), voto("2024-09-01"), voto("2024-10-01")];
+    expect(periodosEfetivos([], ev, "2026-10-25")).toEqual([{ inicio: "2024-03-01", fim: "2024-04-01" }, { inicio: "2024-09-01", fim: "2024-10-01" }]);
+  });
+  it("mantém janela curta sem atividade e não mexe em quem tem histórico consistente", () => {
+    const declarado = [{ inicio: "2023-02-01", fim: "2023-02-10" }, { inicio: "2024-01-01" }];
+    const ev = [voto("2024-02-10"), voto("2026-10-14")]; // atividade recente: a janela em aberto continua em aberto
+    expect(periodosEfetivos(declarado, ev, "2026-10-25")).toEqual([{ inicio: "2023-02-01", fim: "2023-02-10" }, { inicio: "2024-02-10" }]);
   });
 });

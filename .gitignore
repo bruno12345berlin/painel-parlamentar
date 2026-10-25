@@ -9,3 +9,6 @@ data/fotos/
 data/processed/detalhe/
 public/json/
 public/fotos/
+data/processed.novo/
+data/processed.antigo/
+data/processed/relatorios/

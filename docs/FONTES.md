@@ -71,3 +71,27 @@ Como no plano: agregados por parlamentar e rankings no git; detalhe anual por pa
 
 ## Coleta: robustez
 Um download de 53 MB caiu no meio (`other side closed`) e deixou arquivo truncado. O coletor agora grava em `.part`, renomeia só ao concluir e repete com espera exponencial.
+
+## Achados da Fase 2 (pipeline completo, 25/10/2026)
+
+- **A lista `/deputados?idLegislatura=` é incompleta.** Deixa de fora suplentes que exerceram mandato (58 com despesas e 26 com votos). O coletor completa a lista com todo deputado que aparece em votos ou despesas desde 2019-02 (+59 deputados). O perfil individual `/deputados/{id}` existe para eles.
+- **O histórico `/deputados/{id}/historico` erra nos dois sentidos.** Suplente "CONVOCADO" sem linha de "Exercício" depois (Joseildo Ramos: 823 votos fora das janelas declaradas) e exercício declarado de anos sem nenhuma atividade (José Carlos Araújo: declarado em exercício de 2022 a 2026, mas só votou e gastou a partir de jun/2026). Correção: `metrics/evidencia.ts` recorta cada janela declarada ao trecho com atividade (votos nominais do Plenário e meses com despesa) e acrescenta a atividade fora das janelas. Antes da correção, 41 deputados tinham 2.680 votos fora do exercício; depois, zero.
+- **Senado: `Exercicios` de `/senador/{codigo}/mandatos` é confiável** (períodos com causa: renúncia, licença com suplente, retorno). A API devolve um objeto no lugar de lista quando há um só item, e alguns mandatos antigos não trazem `DescricaoParticipacao`: os schemas toleram isso. Senado: `votos` pode vir `null` em votações antigas.
+- **Votos do Senado**: lista inclui só quem estava em exercício (suplente substitui o titular na lista).
+- **CEAPS: nomes**: grafias diferem entre a CEAPS e a API ("JEAN PAUL PRATES" × "Jean-Paul Prates", "SAMUEL ARAUJO" × "Dr. Samuel Araújo"). Chave de comparação sem acento, sem pontuação e sem "Dr./Dra./Prof.". Restaram 43 nomes: 2 senadores do escopo (Weverton Rocha, Maria Eliza de Aguiar e Silva) e 41 com despesas só de jan/2019 (fora do escopo). Tabela em `data/manual/ceaps-nomes.json`.
+- **Câmara `votacoesObjetos`**: liga cada votação às proposições com ementa oficial, mas 69% das votações têm mais de 10 proposições vinculadas (apensadas), sem como saber qual é a votada. Guardamos as proposições só quando são até 3; senão fica a descrição oficial.
+- **Bancadas**: nomes de orientação são variantes, abreviados ou truncados ("Republican", "Bl UniPpPsd..."). Tabela manual `data/manual/bancadas.json`; linhas truncadas sem membros confirmáveis não são usadas (o alinhamento é calculado só nas votações em que a bancada do partido do deputado é identificável).
+- **Download**: o servidor da Câmara reseta streams HTTP/2 em arquivos grandes. O coletor usa `curl --http1.1` com retomada.
+- **Proposições**: o arquivo `proposicoes` da Câmara não traz o tipo PROC.
+
+## Tamanhos e tempos medidos (Mac do Bruno, rede doméstica)
+| Item | Valor |
+|---|---|
+| Brutos 2019 a 2026 (`data/raw`, fora do git) | 1,4 GB |
+| `data:build` completo | 75 s |
+| `data:photos` (1.085 fotos, primeira vez) | 6 min |
+| `data:collect` incremental | 2 min; a primeira coleta completa não foi cronometrada de forma limpa (várias interrupções de rede) |
+| `agregados` (vão para o git) | 11 MB, 1.163 arquivos, maior 265 KB |
+| `detalhe` (gerado, vai para `public/json`) | 141 MB, 5.501 arquivos, maior ~250 KB |
+| Fotos | 13 MB, 1.085 arquivos |
+| Estimativa de arquivos do deploy | ~1.087 páginas de perfil + 5.501 JSONs + 1.085 fotos + ~1.087 imagens OG + páginas de estado, ranking e dados ≈ 9 a 10 mil (limite 20 mil) |

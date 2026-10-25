@@ -5,7 +5,7 @@ Especificação completa em `PLANO.md`. Fontes verificadas em `docs/FONTES.md`. 
 ## Estado atual (25/10/2026)
 - **Fase 0:** construída e **aprovada** (25/10/2026).
 - **Fase 1:** construída e **aprovada**, CI verde. Repositório público: https://github.com/bruno12345berlin/painel-parlamentar. Esqueleto Astro funcionando (typecheck, lint, 3 testes e build passam; conferido no navegador em celular e modo escuro).
-- **Fase 2 (em andamento): fatia vertical construída, aguardando o olhar do Bruno.** Deputado Abilio Brunini (PL-MT) e senador Alan Rick (AC), ano 2024: `npx tsx pipeline/slice/collect.ts` e `build.ts`; páginas descartáveis em /slice/[slug]. Totais de gasto conferidos com `awk` direto nos brutos (batem ao centavo). **Participação, alinhamento e projetos ainda não foram conferidos contra o site oficial. Decisões do Bruno sobre projetos, AP, fornecedores e siglas já aplicadas.** Pipeline completo ainda não começou.
+- **Fase 2: pipeline completo construído, aguardando aprovação.** `npm run data:collect`, `data:build`, `data:photos` rodam do zero a 2026: 1.087 parlamentares (929 deputados, 158 senadores), 60 rankings, 34 testes. Medidas e achados em `docs/FONTES.md`. **Ainda não conferido contra o site oficial:** participação, alinhamento e projetos (só os totais de gasto foram conferidos, por soma independente). Tabela de limites da cota ainda pendente: rankings de % da cota não são gerados.
 - Pendente/não verificado: tabelas de limite da cota por UF e ano (Câmara e Senado); regra de acúmulo do saldo mensal; licenças do Senado com um caso real; cobertura de afastamentos no `/historico` da Câmara.
 - Repositório criado e primeiro push feito em 25/10/2026 (commits com e-mail noreply do GitHub).
 - Links do cabeçalho para /deputados, /senadores, /rankings, /comparar e /dados dão 404 até as Fases 3 e 4. Em /sobre, "quem faz" é `[A DEFINIR]`.
@@ -27,7 +27,18 @@ Especificação completa em `PLANO.md`. Fontes verificadas em `docs/FONTES.md`. 
 | 25/10/2026 | `votacao` do Senado coletada por intervalo de datas, nunca por `?ano=` | `?ano=` filtra pela matéria: contaminou números | construído |
 | 25/10/2026 | Fornecedor mostra nome, CPF mascarado e se é pessoa física ou jurídica (pelo nº de dígitos do documento) | Esconder o nome de pessoa física: o site mostraria menos que a fonte oficial. (Bruno decidiu) | construído |
 | 25/10/2026 | Siglas de voto do Senado traduzidas para texto legível; a sigla original é guardada | Mostrar a sigla crua (P-NRV): incompreensível para o cidadão | construído |
+| 25/10/2026 | Exercício dos deputados corrigido pela atividade registrada (votos nominais e meses com despesa), com o histórico da API como ponto de partida | Confiar só no `/historico`: 41 deputados com votos fora do exercício e participação absurda (1,3%) para quem entrou em 2026 | construído |
+| 25/10/2026 | Universo de deputados = lista da API + todo id em votos/despesas desde 2019-02 | Só a lista da API: perdia 59 suplentes (R$ 6,8 mi de despesas) | construído |
+| 25/10/2026 | Detalhe anual enxuto: despesas agrupadas por mês × categoria × fornecedor, projetos só de tipos legislativos com ementa, requerimentos só em contagens | Detalhe completo: 450 MB; versão enxuta 141 MB | construído |
+| 25/10/2026 | Votação da Câmara guarda as proposições vinculadas só quando são até 3 | Guardar todas: 26 MB só nas tabelas de votações | construído |
+| 25/10/2026 | `data:build` grava em `data/processed.novo` e só troca se tudo validar (nomes da CEAPS zerados) | Gravar direto: falha no meio apagaria os dados anteriores | construído |
+| 25/10/2026 | Rankings exigem 3 meses de exercício no período; % da cota não é gerado (limites por UF/ano pendentes) | — | construído |
+| 25/10/2026 | Parlamentar nas duas casas tem perfis separados (ex.: `alan-rick-ac` deputado, `alan-rick-ac-senado`) | Ligar automaticamente: backlog | construído |
 
 ## Convenções
 - Stack, estrutura e regras de métrica: ver `PLANO.md` (seções 3, 5, 6).
 - Samples em `data/samples/` sem dados pessoais (CPF removido).
+- Só `data/processed/agregados/` vai para o git; `detalhe`, `raw`, fotos e `public/json` são gerados.
+- Slugs nunca mudam: `data/manual/slugs.json`, chave `casa:idOrigem`.
+- Regressão: `tests/regressao.test.ts` trava os números conferidos à mão de Abilio Brunini e Alan Rick (2024).
+- Limitações a declarar na metodologia (Fase 3/5): presidente da Câmara/Senado tem participação baixa por não votar mesmo sem presidir a sessão; alinhamento só cobre votações em que a bancada do partido é identificável; Senado: participação conta AP, P-NRV e NCom como ausência.

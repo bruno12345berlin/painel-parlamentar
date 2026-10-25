@@ -1,0 +1,34 @@
+{
+ "geradoEm": "2026-10-25",
+ "hashAgregados": "7d4df6706d99f2eb23ddd75d54cd072e6aaee23be6497da22ea7a4461f3f8087",
+ "fontes": {
+  "camara": {
+   "atualizadoEm": "2026-10-25"
+  },
+  "senado": {
+   "atualizadoEm": "2026-10-25"
+  }
+ },
+ "anos": [
+  2019,
+  2020,
+  2021,
+  2022,
+  2023,
+  2024,
+  2025,
+  2026
+ ],
+ "minimoMesesExercicio": 3,
+ "tiposProjeto": [
+  "PL",
+  "PLP",
+  "PEC",
+  "PDL",
+  "PRC",
+  "PDS",
+  "PRS"
+ ],
+ "parlamentares": 1087,
+ "rankings": 60
+}

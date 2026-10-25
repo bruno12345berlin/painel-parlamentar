@@ -22,3 +22,11 @@ export function tipoFornecedor(bruto: string): TipoFornecedor {
   const n = bruto.replace(/\D/g, "").length;
   return n === 11 ? "pf" : n === 14 ? "pj" : "desconhecido";
 }
+
+/** Chave para casar nomes da CEAPS com o nome parlamentar: sem acento, pontuação (hífen, ponto) vira espaço, sem "Dr."/"Dra."/"Prof.". */
+export const chaveNome = (n: string): string =>
+  normalizarNome(n)
+    .replace(/[^a-z0-9 ]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^(dr|dra|prof|profa) /, "");

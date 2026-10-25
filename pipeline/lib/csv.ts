@@ -35,3 +35,20 @@ export function lerCsvDeZip(caminhoZip: string): AsyncGenerator<Linha> {
   const proc = spawn("unzip", ["-p", caminhoZip], { stdio: ["ignore", "pipe", "inherit"] });
   return lerCsv(proc.stdout);
 }
+
+/**
+ * Valida o CSV enquanto lê: colunas obrigatórias na primeira linha e número mínimo de linhas ao final.
+ * Falha com erro claro (a fonte mudou ou veio truncada); quem chama não grava nada antes de terminar.
+ */
+export async function* validarCsv(nome: string, linhas: AsyncGenerator<Linha>, colunas: readonly string[], minLinhas: number): AsyncGenerator<Linha> {
+  let n = 0;
+  for await (const l of linhas) {
+    if (n === 0) {
+      const faltam = colunas.filter((c) => !(c in l));
+      if (faltam.length) throw new Error(`${nome}: colunas ausentes: ${faltam.join(", ")}. A fonte mudou?`);
+    }
+    n++;
+    yield l;
+  }
+  if (n < minLinhas) throw new Error(`${nome}: só ${n} linhas (mínimo esperado ${minLinhas}). Arquivo truncado?`);
+}

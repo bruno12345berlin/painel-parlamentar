@@ -1,0 +1,42 @@
+{
+  "_leia": "Como a orientação de bancada da Câmara é atribuída a um deputado. As linhas de votacoesOrientacoes usam nomes de partido, federação ou bloco, às vezes abreviados ou truncados. 'partidos' lista as siglas (como aparecem no partido do deputado no voto) cobertas pela linha; null = membros não confirmáveis (nome truncado), então a linha NÃO é usada. 'naoBancada' = linhas que não são bancada de um partido (governo, maioria, minoria, oposição). Confirmado contra https://dadosabertos.camara.leg.br/api/v2/blocos (legislaturas 56 e 57) e os nomes presentes em 2019-2026. Nomes de uma só sigla (inclusive variantes de caixa) são resolvidos por 'apelidos' ou pela própria sigla.",
+  "apelidos": {
+    "republican": "REPUBLICANOS",
+    "solidaried": "SOLIDARIEDADE",
+    "podemos": "PODE",
+    "patri": "PATRIOTA",
+    "patriota": "PATRIOTA",
+    "avante": "AVANTE",
+    "novo": "NOVO",
+    "cidadania": "CIDADANIA",
+    "rede": "REDE",
+    "união": "UNIÃO",
+    "missão": "MISSÃO",
+    "gov.": null
+  },
+  "naoBancada": ["GOV.", "Governo", "Maioria", "Minoria", "Oposição"],
+  "compostas": {
+    "PpMdbPtb": ["PP", "MDB", "PTB"],
+    "PscPtb": ["PSC", "PTB"],
+    "NovoCidPv": ["NOVO", "CIDADANIA", "PV"],
+    "PdtAvante": ["PDT", "AVANTE"],
+    "PpPrPsd": ["PP", "PR", "PSD"],
+    "Bl MdbPsdRepPode": ["MDB", "PSD", "REPUBLICANOS", "PODE"],
+    "Bl MdbPsdRepPodePsc": ["MDB", "PSD", "REPUBLICANOS", "PODE", "PSC"],
+    "Bl UniPpFdrPsdbCid...": ["UNIÃO", "PP", "PSDB", "CIDADANIA"],
+    "Bl AvanSolidPrd...": ["AVANTE", "SOLIDARIEDADE", "PRD"],
+    "Fdr PSOL-REDE": ["PSOL", "REDE"],
+    "Fdr PT-PCdoB-PV": ["PT", "PCdoB", "PV"],
+    "Fdr PSDB-CIDADAN": ["PSDB", "CIDADANIA"],
+    "Fdr PSDB-CIDADANIA": ["PSDB", "CIDADANIA"],
+    "PslPpPsd...": null,
+    "PdtPros...": null,
+    "PdtPodePros...": null,
+    "PdtSdPode...": null,
+    "Bl UniPpPsd...": null,
+    "Bl PlUniPpPsd...": null,
+    "Bl PlFdrPtUniPp...": null,
+    "Bl PlFdrPTUniPp...": null,
+    "Bloco Parlamentar": null
+  }
+}
