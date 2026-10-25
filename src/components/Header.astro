@@ -1,0 +1,32 @@
+---
+import { site } from "../../site.config";
+const links = [
+  { href: "/deputados", rotulo: "Deputados" },
+  { href: "/senadores", rotulo: "Senadores" },
+  { href: "/rankings", rotulo: "Rankings" },
+  { href: "/comparar", rotulo: "Comparar" },
+  { href: "/dados", rotulo: "Dados" },
+  { href: "/metodologia", rotulo: "Metodologia" },
+  { href: "/sobre", rotulo: "Sobre" },
+];
+const atual = Astro.url.pathname.replace(/\/$/, "");
+---
+
+<header class="border-b" style="border-color:var(--border);background:var(--surface)">
+  <div class="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <a href="/" class="text-lg font-bold no-underline" style="color:var(--text)">{site.name}</a>
+    <nav aria-label="Principal">
+      <ul class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+        {
+          links.map((l) => (
+            <li>
+              <a href={l.href} aria-current={atual === l.href ? "page" : undefined} class="py-1 inline-block aria-[current=page]:font-semibold">
+                {l.rotulo}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>

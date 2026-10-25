@@ -1,0 +1,24 @@
+---
+import { site } from "../../site.config";
+import { formatarData } from "../lib/format";
+---
+
+<footer class="mt-16 border-t text-sm" style="border-color:var(--border);background:var(--surface);color:var(--muted)">
+  <div class="mx-auto max-w-5xl space-y-3 px-4 py-8">
+    <p>
+      Dados oficiais da <a href="https://dadosabertos.camara.leg.br">Câmara dos Deputados</a> e do
+      <a href="https://www12.senado.leg.br/dados-abertos">Senado Federal</a>, tratados por este projeto independente e apartidário.
+    </p>
+    <p>
+      {
+        site.dadosAtualizadosEm
+          ? `Dados atualizados em ${formatarData(site.dadosAtualizadosEm)}.`
+          : "Os dados ainda não foram carregados: o site está em construção."
+      }
+    </p>
+    <p>
+      Código aberto (MIT) no <a href={site.repoUrl}>GitHub</a>. Dados derivados sob licença
+      <a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br">CC BY 4.0</a>, com atribuição às fontes oficiais.
+    </p>
+  </div>
+</footer>

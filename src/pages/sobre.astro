@@ -1,0 +1,32 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../../site.config";
+---
+
+<Base titulo="Sobre" descricao="O que é este projeto, quem o mantém e como reportar um erro.">
+  <article class="prose-simples max-w-2xl">
+    <h1 class="text-3xl font-bold">Sobre o projeto</h1>
+    <p>
+      {site.name} mostra, em linguagem simples, quanto cada deputado federal e senador gastou da cota parlamentar, como votou, em
+      quantas votações participou e quais projetos apresentou, desde {site.desde}.
+    </p>
+    <h2>Independente e apartidário</h2>
+    <p>
+      O projeto não tem anúncios, não tem contas de usuário e não coleta dados pessoais de quem visita. Mostra dados, não opiniões: todos
+      os parlamentares e partidos recebem o mesmo tratamento.
+    </p>
+    <h2>De onde vêm os dados</h2>
+    <p>
+      Dados abertos da <a href="https://dadosabertos.camara.leg.br">Câmara dos Deputados</a> e do
+      <a href="https://www12.senado.leg.br/dados-abertos">Senado Federal</a>. Cada número tem explicação na
+      <a href="/metodologia">metodologia</a> e link para a fonte oficial.
+    </p>
+    <h2>Quem faz</h2>
+    <p>[A DEFINIR: nome e contato de quem mantém o projeto]</p>
+    <h2>Encontrou um erro?</h2>
+    <p>
+      Abra uma ocorrência no <a href={`${site.repoUrl}/issues`}>GitHub</a>. O código é aberto, sob licença MIT, e os dados derivados
+      seguem a licença CC BY 4.0.
+    </p>
+  </article>
+</Base>

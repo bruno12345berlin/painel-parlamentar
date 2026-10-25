@@ -1,0 +1,47 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base titulo="Metodologia" descricao="Como cada número do site é calculado, em linguagem simples.">
+  <article class="prose-simples max-w-2xl">
+    <h1 class="text-3xl font-bold">Metodologia</h1>
+    <p>
+      Esta página explica como cada número é calculado. O texto está em construção e será completado junto com as métricas, nas próximas
+      fases do projeto.
+    </p>
+
+    <h2>Gastos da cota parlamentar</h2>
+    <p>
+      "Gasto" é sempre o valor líquido: o valor do documento menos o que foi glosado (não aceito). Devoluções entram como valor negativo e
+      são somadas. Linhas de lideranças partidárias não pertencem a nenhum parlamentar e ficam fora dos perfis.
+    </p>
+
+    <h2>Participação em votações</h2>
+    <p>
+      É a proporção de votações nominais do Plenário em que o parlamentar registrou voto, entre as votações nominais ocorridas enquanto ele
+      estava em exercício.
+    </p>
+    <ul>
+      <li>Só entram votações do Plenário; votações em comissões ficam de fora.</li>
+      <li>
+        Só entram votações com voto individual registrado. Muitas votações são simbólicas (sem voto individual): em 2024, só 273 das 2.144
+        votações do Plenário da Câmara tiveram voto nominal.
+      </li>
+      <li>No Senado, votações secretas ficam de fora, porque não identificam quem votou.</li>
+      <li>Obstrução conta como voto registrado.</li>
+      <li>Quem presidiu a sessão não entra no cálculo daquela votação.</li>
+      <li>Licenças e afastamentos são descontados do período considerado.</li>
+    </ul>
+
+    <h2>Alinhamento com o partido</h2>
+    <p>
+      Disponível só para deputados, porque o Senado não publica a orientação de bancada. Para senadores, o site mostra "não disponível".
+    </p>
+
+    <h2>Projetos apresentados</h2>
+    <p>Quantidade por tipo, separando autor principal de coautor. Quantidade não mede qualidade nem relevância.</p>
+
+    <h2>Atualização</h2>
+    <p>Cada página mostra a data da última atualização. Se passar de 7 dias, um aviso aparece em todas as páginas.</p>
+  </article>
+</Base>

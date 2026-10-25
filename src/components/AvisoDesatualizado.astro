@@ -1,0 +1,15 @@
+---
+import { site } from "../../site.config";
+import { dadosDesatualizados, formatarData } from "../lib/format";
+const mostrar = dadosDesatualizados(site.dadosAtualizadosEm);
+---
+
+{
+  mostrar && site.dadosAtualizadosEm && (
+    <div role="status" class="border-b" style="background:var(--alert-bg);border-color:var(--alert-border);color:var(--alert-text)">
+      <p class="mx-auto max-w-5xl px-4 py-2 text-sm">
+        Os dados podem estar desatualizados: a última atualização foi em {formatarData(site.dadosAtualizadosEm)}.
+      </p>
+    </div>
+  )
+}

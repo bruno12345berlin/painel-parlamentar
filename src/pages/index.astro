@@ -1,0 +1,13 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../../site.config";
+---
+
+<Base>
+  <h1 class="text-3xl font-bold">{site.name}</h1>
+  <p class="mt-3 max-w-2xl text-lg" style="color:var(--muted)">{site.tagline}</p>
+  <p class="mt-6 rounded border p-4" style="border-color:var(--border);background:var(--surface)">
+    Site em construção. Busca, perfis e rankings chegam nas próximas fases. Enquanto isso, leia a
+    <a href="/metodologia">metodologia</a> e <a href="/sobre">sobre o projeto</a>.
+  </p>
+</Base>
