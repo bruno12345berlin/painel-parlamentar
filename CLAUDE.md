@@ -4,10 +4,10 @@ Especificação completa em `PLANO.md`. Fontes verificadas em `docs/FONTES.md`. 
 
 ## Estado atual (25/10/2026)
 - **Fase 0:** construída e **aprovada** (25/10/2026).
-- **Fase 1:** construída, **aguardando aprovação**. Esqueleto Astro funcionando (typecheck, lint, 3 testes e build passam; conferido no navegador em celular e modo escuro). GitHub **não** criado (precisa de permissão do Bruno).
+- **Fase 1:** construída, CI verde, **aguardando aprovação**. Repositório público: https://github.com/bruno12345berlin/painel-parlamentar. Esqueleto Astro funcionando (typecheck, lint, 3 testes e build passam; conferido no navegador em celular e modo escuro).
 - Pendente/não verificado: tabelas de limite da cota por UF e ano (Câmara e Senado); regra de acúmulo do saldo mensal; licenças do Senado com um caso real; cobertura de afastamentos no `/historico` da Câmara.
-- Projeto ainda não é repositório git. Nada foi commitado.
-- Links do cabeçalho para /deputados, /senadores, /rankings, /comparar e /dados dão 404 até as Fases 3 e 4. `site.repoUrl` ainda é placeholder. Em /sobre, "quem faz" é `[A DEFINIR]`.
+- Repositório criado e primeiro push feito em 25/10/2026 (commits com e-mail noreply do GitHub).
+- Links do cabeçalho para /deputados, /senadores, /rankings, /comparar e /dados dão 404 até as Fases 3 e 4. Em /sobre, "quem faz" é `[A DEFINIR]`.
 
 ## Log de decisões
 | Data | Decisão | Rejeitado / motivo | Status |
